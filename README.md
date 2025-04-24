@@ -1,3 +1,4 @@
+ Giacomo-Simone-Giuseppe
 # 🦄 Analisi e Pulizia del Dataset delle Aziende Unicorn
 
 Questo progetto ha lo scopo di analizzare e pulire un dataset contenente informazioni sulle **aziende unicorn** (startup valutate oltre 1 miliardo di dollari), per poi ottenere una serie di statistiche utili e insight significativi.
@@ -76,5 +77,7 @@ Restituisce un dataframe che mostra l’evoluzione annuale delle valutazioni azi
 
 ```bash
 python nome_script.py
+=======
+main```
 
  
