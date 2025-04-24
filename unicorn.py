@@ -2,7 +2,9 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
 def carica_dati(percorso):
     return pd.read_csv(percorso).copy()
 
@@ -80,6 +82,75 @@ def andamento_annuale_per_industria(df):
     aggregazione.columns = ['valuation_media', 'valuation_count', 'num_aziende']
     return aggregazione.reset_index()
 
+
+# Aggiungi questa nuova funzione per le previsioni
+def previsioni_valuation(df):
+    # 1) Preparazione dei dati
+    data = andamento_annuale_per_industria(df)
+    data = data[['anno', 'industry', 'valuation_media']].dropna()
+    
+    # Se non ci sono dati, esci
+    if data.empty:
+        print("Nessun dato disponibile per le previsioni.")
+        return
+    
+    # 2) Definizione del range di anni futuri
+    max_anno = data['anno'].max()
+    # Qui creiamo un array colonna con gli anni max_anno+1...max_anno+5
+    anni_futuri = np.arange(max_anno + 1, max_anno + 6).reshape(-1, 1)
+    
+    # Imposto dimensioni del grafico
+    plt.figure(figsize=(14, 8))
+    
+    # 3) Selezione delle top 5 industrie
+    #    in base alla valuation_media media storica
+    top_industrie = data\
+        .groupby('industry')['valuation_media']\
+        .mean()\
+        .nlargest(5)\
+        .index
+    
+    # 4) Ciclo su ciascuna delle top industrie
+    for industria in top_industrie:
+        # Filtra solo i dati di quest’industria
+        industria_data = data[data['industry'] == industria]
+        
+        # Serve almeno 3 punti per adattare un polinomio di grado 2
+        if len(industria_data) < 3:
+            continue
+        
+        # X = anni (es. [[2015], [2016], ...]); y = valuation_media di quell’anno
+        X = industria_data[['anno']].values
+        y = industria_data['valuation_media'].values
+        
+        # 5) Costruzione e training del modello
+        #    Pipeline che trasforma x → [1, x, x²] + regressione lineare
+        model = make_pipeline(PolynomialFeatures(2), LinearRegression())
+        model.fit(X, y)
+        
+        # 6) Generazione delle previsioni
+        #    - unisco i valori storici X.flatten() con gli anni futuri
+        anni_totali = np.concatenate([X.flatten(), anni_futuri.flatten()])
+        #    - riformo in colonna per predict()
+        previsioni = model.predict(anni_totali.reshape(-1, 1))
+        
+        # 7) Plot dei risultati
+        #    • Storico: punti e linee per gli anni passati
+        plt.plot(industria_data['anno'], y, 'o-', label=f'{industria} Storico')
+        #    • Previsioni: gli ultimi 5 valori calcolati sul polinomio
+        plt.plot(anni_futuri, previsioni[-5:], 's--', label=f'{industria} Previsioni')
+    
+    # 8) Rifinitura del grafico
+    plt.title(f'Previsioni Valuation 5 Anni ({max_anno + 1}-{max_anno + 5}) - Top Industrie')
+    plt.xlabel('Anno')
+    plt.ylabel('Valuation Media (Miliardi $)')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+
 def mostra_menu():
     print("\n" + "="*50)
     print("MENU VISUALIZZAZIONE GRAFICI")
@@ -89,8 +160,9 @@ def mostra_menu():
     print("3. Aziende top per paese")
     print("4. Industrie più frequenti")
     print("5. Andamento annuale per industria")
-    print("6. Esci")
-    return input("Seleziona un'opzione (1-6): ")
+    print("6. Previsioni future per industria per i prossimi 5 anni")
+    print("7. Esci")
+    return input("Seleziona un'opzione (1-7): ")
 
 def genera_grafico(df, scelta):
     if scelta == "1":
@@ -149,6 +221,10 @@ if __name__ == '__main__':
             scelta = mostra_menu()
             
             if scelta == "6":
+                
+                previsioni_valuation(df)
+            
+            if scelta == "7":
                 print("Grazie per aver utilizzato il sistema!")
                 break
                 
@@ -157,8 +233,7 @@ if __name__ == '__main__':
             else:
                 print("Opzione non valida. Riprovare.")
                 
-        df.to_csv('unicorns_cleaned.csv', index=False)
-        print("Dati puliti salvati in 'unicorns_cleaned.csv'")
+        
         
     except Exception as e:
         print(f"Si è verificato un errore: {e}")
