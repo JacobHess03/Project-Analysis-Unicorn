@@ -24,6 +24,9 @@ def pulisci_dati(percorso):
     df = rimuovi_righe_senza_investitori(df)
     df = rimuovi_duplicati(df)
     # Assicuriamoci che valuation sia numerica e senza NaN
+    # Prima di convertire, pulisci eventuali simboli di valuta o virgole
+    if df['valuation'].dtype == object:
+        df['valuation'] = df['valuation'].replace('[\$,]', '', regex=True)
     df['valuation'] = pd.to_numeric(df['valuation'], errors='coerce')
     df = df.dropna(subset=['valuation'])
     print("Pulizia completata. Valuation NaN rimosse.")
@@ -51,30 +54,40 @@ def andamento_annuale_per_industria(df):
     data = data.dropna(subset=['valuation', 'industry'])
     data['anno'] = data['date_joined'].dt.year
 
-    inizio = data.sort_values('date_joined').groupby(['anno', 'industry', 'company']).first().reset_index()
-    fine = data.sort_values('date_joined').groupby(['anno', 'industry', 'company']).last().reset_index()
-
-    trend = pd.merge(inizio, fine, on=['anno', 'industry', 'company'], suffixes=('_inizio', '_fine'))
-    return trend[['anno', 'industry', 'company', 'valuation_inizio', 'valuation_fine']]
+    # Questa parte è stata corretta per calcolare statistiche aggregate per anno e industria
+    # invece di tentare di mescolare i dati di inizio e fine anno
+    aggregazione = data.groupby(['anno', 'industry']).agg({
+        'valuation': ['mean', 'count'],
+        'company': 'nunique'
+    })
+    
+    # Rinomino le colonne per chiarezza
+    aggregazione.columns = ['valuation_media', 'valuation_count', 'num_aziende']
+    
+    # Reset dell'indice per avere un dataframe regolare
+    return aggregazione.reset_index()
 
 if __name__ == '__main__':
-    percorso_file = 'unicorns.csv'
-    df = pulisci_dati(percorso_file)
+    try:
+        percorso_file = 'unicorns.csv'
+        df = pulisci_dati(percorso_file)
 
-    print("Top 10 aziende per valuation più alta:")
-    print(top_aziende(df, 10))
+        print("\nTop 10 aziende per valuation più alta:")
+        print(top_aziende(df, 10))
 
-    print("Top 10 aziende per valuation più bassa:")
-    print(down_aziende(df, 10))
+        print("\nTop 10 aziende per valuation più bassa:")
+        print(down_aziende(df, 10))
 
-    print("Aziende con valuation più alta per paese:")
-    print(aziende_top_per_paese(df))
+        print("\nAziende con valuation più alta per paese:")
+        print(aziende_top_per_paese(df))
 
-    print("Industria con più aziende:")
-    print(industria_piu_frequente(df).head(1))
+        print("\nIndustria con più aziende:")
+        print(industria_piu_frequente(df).head(1))
 
-    print("Andamento annuale delle aziende per industry:")
-    print(andamento_annuale_per_industria(df).head(20))
+        print("\nAndamento annuale delle aziende per industry:")
+        print(andamento_annuale_per_industria(df).head(20))
 
-    df.to_csv('unicorns_cleaned.csv', index=False)
-    print("Dati puliti salvati in 'unicorns_cleaned.csv'")
+        df.to_csv('unicorns_cleaned.csv', index=False)
+        print("Dati puliti salvati in 'unicorns_cleaned.csv'")
+    except Exception as e:
+        print(f"Si è verificato un errore: {e}")
