@@ -1,5 +1,6 @@
 import pandas as pd
 import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
 
 def carica_dati(percorso):
@@ -36,8 +37,24 @@ def pulisci_dati(percorso):
 def top_aziende(df, n=10):
     return df.sort_values('valuation', ascending=False).head(n)
 
-def down_aziende(df, n=10):
-    return df.sort_values('valuation', ascending=True).head(n)
+def boxplot_valuation_per_industria(df):
+    """
+    Mostra la distribuzione della valuation per industria con un boxplot.
+    """
+    df_plot = df.dropna(subset=['industry', 'valuation'])
+    
+    # Prendiamo solo le industrie più rappresentate
+    top_industrie = df_plot['industry'].value_counts().head(10).index
+    df_plot = df_plot[df_plot['industry'].isin(top_industrie)]
+    
+    plt.figure(figsize=(14, 8))
+    sns.boxplot(data=df_plot, x='valuation', y='industry', palette='coolwarm', showfliers=False)
+    plt.title('Distribuzione della Valuation per Industria (Top 10)')
+    plt.xlabel('Valuation (miliardi $)')
+    plt.ylabel('Industria')
+    plt.tight_layout()
+    plt.show()
+
 
 def aziende_top_per_paese(df):
     data = df.dropna(subset=['country', 'valuation'])
@@ -68,7 +85,7 @@ def mostra_menu():
     print("MENU VISUALIZZAZIONE GRAFICI")
     print("="*50)
     print("1. Top 10 aziende per valuation")
-    print("2. Bottom 10 aziende per valuation")
+    print("2. Distribuzione della valuation per industria (boxplot)")
     print("3. Aziende top per paese")
     print("4. Industrie più frequenti")
     print("5. Andamento annuale per industria")
@@ -76,37 +93,41 @@ def mostra_menu():
     return input("Seleziona un'opzione (1-6): ")
 
 def genera_grafico(df, scelta):
-    plt.figure(figsize=(12, 7))
-    
     if scelta == "1":
+        plt.figure(figsize=(12, 7))
         data = top_aziende(df, 10)
         sns.barplot(x='valuation', y='company', data=data, palette='rocket')
         plt.title('Top 10 Aziende per Valuation')
         plt.xlabel('Valuation (miliardi $)')
         plt.ylabel('')
+        plt.tight_layout()
+        plt.show()
         
     elif scelta == "2":
-        data = down_aziende(df, 10)
-        sns.barplot(x='valuation', y='company', data=data, palette='mako')
-        plt.title('Bottom 10 Aziende per Valuation')
-        plt.xlabel('Valuation (miliardi $)')
-        plt.ylabel('')
+        boxplot_valuation_per_industria(df)
         
     elif scelta == "3":
+        plt.figure(figsize=(12, 7))
         data = aziende_top_per_paese(df).sort_values('valuation', ascending=False).head(15)
         sns.barplot(x='valuation', y='country', data=data, palette='viridis')
         plt.title('Aziende con Valuation più Alta per Paese (Top 15)')
         plt.xlabel('Valuation (miliardi $)')
         plt.ylabel('Paese')
+        plt.tight_layout()
+        plt.show()
         
     elif scelta == "4":
+        plt.figure(figsize=(12, 7))
         data = industria_piu_frequente(df).head(10)
         sns.barplot(x=data.values, y=data.index, palette='flare')
         plt.title('Top 10 Industrie più Frequenti')
         plt.xlabel('Numero di Aziende')
         plt.ylabel('Industria')
+        plt.tight_layout()
+        plt.show()
         
     elif scelta == "5":
+        plt.figure(figsize=(12, 7))
         data = andamento_annuale_per_industria(df)
         sns.lineplot(x='anno', y='valuation_media', hue='industry', 
                     data=data, marker='o', palette='tab20')
@@ -114,9 +135,8 @@ def genera_grafico(df, scelta):
         plt.xlabel('Anno')
         plt.ylabel('Valuation Media (miliardi $)')
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-        
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
 
 if __name__ == '__main__':
     try:
