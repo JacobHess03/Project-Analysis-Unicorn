@@ -1,11 +1,10 @@
- Giacomo-Simone-Giuseppe
-# 🦄 Analisi e Pulizia del Dataset delle Aziende Unicorn
+# Analisi e Pulizia del Dataset delle Aziende Unicorn
 
 Questo progetto ha lo scopo di analizzare e pulire un dataset contenente informazioni sulle **aziende unicorn** (startup valutate oltre 1 miliardo di dollari), per poi ottenere una serie di statistiche utili e insight significativi.
 
 ---
 
-## 🎯 Obiettivo
+## Obiettivo
 
 Attraverso un insieme di funzionalità, il programma:
 - Pulisce il dataset da valori nulli e duplicati
@@ -15,7 +14,7 @@ Attraverso un insieme di funzionalità, il programma:
 
 ---
 
-## 📚 Dataset atteso
+## Dataset atteso
 
 Il programma parte da un file CSV chiamato `unicorns.csv`, che deve contenere almeno le seguenti colonne:
 
@@ -30,7 +29,7 @@ Il programma parte da un file CSV chiamato `unicorns.csv`, che deve contenere al
 ---
 
 ## 🧩 Funzionalità implementate
-
+```
 ### 1. `carica_dati(percorso)`
 Carica i dati da un file CSV e ne crea una copia indipendente.
 
@@ -45,7 +44,8 @@ Rimuove le righe che non indicano investitori (`select_investors` nulli).
 
 ### 5. `rimuovi_duplicati(df)`
 Rimuove eventuali righe duplicate nel dataset.
-
+```
+```
 ### 6. `pulisci_dati(percorso)`
 Effettua l’intera pipeline di pulizia:
 - Caricamento
@@ -55,7 +55,8 @@ Effettua l’intera pipeline di pulizia:
 - Rimozione duplicati
 - Conversione della colonna `valuation` in numerica
 - Eliminazione righe con `valuation` mancante
-
+```
+```
 ### 7. `top_aziende(df, n=10)`
 Restituisce le `n` aziende con la **valuation più alta**.
 
@@ -70,14 +71,16 @@ Restituisce un conteggio delle aziende per industria, ordinato in ordine decresc
 
 ### 11. `andamento_annuale_per_industria(df)`
 Restituisce un dataframe che mostra l’evoluzione annuale delle valutazioni aziendali per ogni industria e azienda.
-
+```
 ---
 
-## 🧪 Esecuzione del programma
+## Esecuzione del programma
 
 ```bash
 python nome_script.py
 =======
 main```
+```
+*Autore: Giacomo Visciotti-Simone Verrengia-Giuseppe Del Vecchio*
 
  
