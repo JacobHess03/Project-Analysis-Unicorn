@@ -1,86 +1,76 @@
-# Analisi e Pulizia del Dataset delle Aziende Unicorn
+Analysis and Cleaning of the Unicorn Companies Dataset
 
-Questo progetto ha lo scopo di analizzare e pulire un dataset contenente informazioni sulle **aziende unicorn** (startup valutate oltre 1 miliardo di dollari), per poi ottenere una serie di statistiche utili e insight significativi.
+This project aims to analyze and clean a dataset containing information on unicorn companies (startups valued over $1 billion), to then derive a series of useful statistics and significant insights.
+Objective
 
----
+Through a set of functionalities, the program:
 
-## Obiettivo
+    Cleans the dataset of null values and duplicates.
+    Enriches missing data.
+    Analyzes the distribution and evolution of company valuations.
+    Generates statistics by industry and country.
 
-Attraverso un insieme di funzionalità, il programma:
-- Pulisce il dataset da valori nulli e duplicati
-- Arricchisce i dati mancanti
-- Analizza la distribuzione e l’evoluzione delle valutazioni aziendali
-- Genera statistiche per industria e paese
+Expected Dataset
 
----
+The program starts with a CSV file named unicorns.csv, which must contain at least the following columns:
 
-## Dataset atteso
+    company
+    industry
+    city
+    country
+    valuation
+    select_investors
+    date_joined
 
-Il programma parte da un file CSV chiamato `unicorns.csv`, che deve contenere almeno le seguenti colonne:
+Implemented Functionalities
 
-- `company`
-- `industry`
-- `city`
-- `country`
-- `valuation`
-- `select_investors`
-- `date_joined`
+Data Loading & Cleaning
 
----
+    carica_dati(percorso)
+    Loads data from a CSV file and creates an independent copy.
 
-## 🧩 Funzionalità implementate
-```
-### 1. `carica_dati(percorso)`
-Carica i dati da un file CSV e ne crea una copia indipendente.
+    mostra_valori_nulli(df)
+    Prints the number of null values for each column.
 
-### 2. `mostra_valori_nulli(df)`
-Stampa il numero di valori nulli per ciascuna colonna.
+    completa_city_con_country(df)
+    Replaces missing values in the city column with those from the country column.
 
-### 3. `completa_city_con_country(df)`
-Sostituisce i valori mancanti nella colonna `city` con quelli della colonna `country`.
+    rimuovi_righe_senza_investitori(df)
+    Removes rows that do not indicate investors (select_investors are null).
 
-### 4. `rimuovi_righe_senza_investitori(df)`
-Rimuove le righe che non indicano investitori (`select_investors` nulli).
+    rimuovi_duplicati(df)
+    Removes any duplicate rows in the dataset.
 
-### 5. `rimuovi_duplicati(df)`
-Rimuove eventuali righe duplicate nel dataset.
-```
-```
-### 6. `pulisci_dati(percorso)`
-Effettua l’intera pipeline di pulizia:
-- Caricamento
-- Visualizzazione dei nulli
-- Completamento città
-- Rimozione righe senza investitori
-- Rimozione duplicati
-- Conversione della colonna `valuation` in numerica
-- Eliminazione righe con `valuation` mancante
-```
-```
-### 7. `top_aziende(df, n=10)`
-Restituisce le `n` aziende con la **valuation più alta**.
+    pulisci_dati(percorso)
+    Executes the entire cleaning pipeline:
+        Loading
+        Displaying nulls
+        Completing cities
+        Removing rows without investors
+        Removing duplicates
+        Converting the valuation column to numeric
+        Deleting rows with missing valuation
 
-### 8. `down_aziende(df, n=10)`
-Restituisce le `n` aziende con la **valuation più bassa**.
+Statistical Analysis
 
-### 9. `aziende_top_per_paese(df)`
-Restituisce la **azienda con la valutazione più alta per ogni paese**.
+    top_aziende(df, n=10)
+    Returns the top n companies with the highest valuation.
 
-### 10. `industria_piu_frequente(df)`
-Restituisce un conteggio delle aziende per industria, ordinato in ordine decrescente.
+    down_aziende(df, n=10)
+    Returns the n companies with the lowest valuation.
 
-### 11. `andamento_annuale_per_industria(df)`
-Restituisce un dataframe che mostra l’evoluzione annuale delle valutazioni aziendali per ogni industria e azienda.
-```
----
+    aziende_top_per_paese(df)
+    Returns the highest-valued company for each country.
 
-## Esecuzione del programma
+    industria_piu_frequente(df)
+    Returns a count of companies by industry, sorted in descending order.
 
-```bash
-python nome_script.py
-=======
-main```
-```
-*Autore: Giacomo Visciotti-Simone Verrengia-Giuseppe Del Vecchio*
+    andamento_annuale_per_industria(df)
+    Returns a DataFrame showing the annual evolution of company valuations for each industry and company.
 
- 
+Program Execution
+Bash
+
+    python main
+
+Authors: Giacomo Visciotti, Simone Verrengia, Giuseppe Del Vecchio
